@@ -1,4 +1,4 @@
-#import "../utils.typ": mtext
+#import "../utils.typ": answer, mtext, proof
 
 = Neural Networks Optimization (8 points)
 
@@ -21,11 +21,16 @@
     $
       bold(m)_(t+1) <- beta_1 bold(m)_t + (1 - beta_1) nabla_(bold(theta)_t) J_#mtext[minibatch] (bold(theta)_t)
     $
+
     $
       bold(theta)_(t+1) <- bold(theta)_t - alpha bold(m)_(t+1)
     $
 
     where $beta_1$ is a hyperparameter between 0 and 1 (often set to 0.9). *Briefly explain in 2--4 sentences* (you don't need to prove mathematically, just give an intuition) how using $bold(m)$ stops the updates from varying as much and why this low variance may be helpful to learning, overall.
+
+    #answer
+
+    Momentum reduces update variance because $bold(m)$ averages the current gradient with past gradients, so a single noisy minibatch has less influence on the update direction. As a result, the parameter updates become smoother and less likely to oscillate sharply from step to step. This lower-variance update is helpful because it allows learning to make steadier progress, especially in directions where minibatch gradients are noisy or inconsistent.
 
   + (2 points) Adam extends the idea of _momentum_ with the trick of _adaptive learning rates_ by keeping track of $bold(v)$, a rolling average of the magnitudes of the gradients:
 
@@ -40,6 +45,10 @@
     $
 
     where $dot.o$ and $\/$ denote elementwise multiplication and division (so $bold(z) dot.o bold(z)$ is elementwise squaring) and $beta_2$ is a hyperparameter between 0 and 1 (often set to 0.99). Since Adam divides the update by $sqrt(bold(v))$, which of the model parameters will get larger updates? Why might this help with learning? *Briefly explain in 2--4 sentences*.
+
+    #answer
+
+    The model parameters with smaller values in $bold(v)$ will receive larger updates, because dividing by $sqrt(bold(v))$ increases the effective step size for parameters whose recent gradients have been small. Conversely, parameters with consistently large gradients get smaller updates. This helps learning by preventing large-gradient parameters from dominating the optimization while allowing slower-changing parameters to make meaningful progress, leading to more balanced and stable training.
 
 + (4 points) Dropout#footnote[
     Srivastava et al., 2014, #link("https://www.cs.toronto.edu/~hinton/absps/JMLRdropout.pdf")
@@ -59,4 +68,20 @@
 
   + (2 points) What must $gamma$ equal in terms of $p_"drop"$? Briefly justify your answer or show your math derivation using the equations given above.
 
+    #answer
+
+    We can derive $gamma$ by calculating the expected value of $bold(h)_"drop"$:
+
+    $
+      bb(E)_(p_"drop") [bold(h)_"drop"]_i = bb(E)_(p_"drop") [gamma bold(d)_i h_i] = gamma h_i bb(E)_(p_"drop") [bold(d)_i] = gamma h_i (1 - p_"drop") = h_i
+    $
+
+    Solving for $gamma$ gives:
+
+    $
+      gamma = 1 / (1 - p_"drop")
+    $
+
   + (2 points) Why should dropout be applied during training? Why should dropout *not* be applied during evaluation? *Briefly explain in 2--4 sentences.* *Hint:* It may help to look at the dropout paper linked.
+
+  Dropout is applied during training to prevent neurons from "co-adapting" (relying too heavily on specific neighbors), which forces the network to learn more robust, independent features and acts as an efficient approximation of training an ensemble of exponentially many neural networks. It should not be applied during evaluation (testing) because we want the model to utilize its full capacity and learned weights to make deterministic, stable predictions, rather than introducing random noise that would hinder accuracy.

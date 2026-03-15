@@ -60,11 +60,60 @@ On each step, your parser will decide among the three transitions using a neural
     [[my, findings, at, the, NLP, conference]],
     [presented $arrow$ I],
     [`LEFT-ARC`],
+
+    [[ROOT, presented, my]],
+    [[findings, at, the, NLP, conference]],
+    [],
+    [`SHIFT`],
+
+    [[ROOT, presented, my, findings]],
+    [[at, the, NLP, conference]],
+    [],
+    [`SHIFT`],
+
+    [[ROOT, presented, my]],
+    [[at, the, NLP, conference]],
+    [findings $arrow$ my],
+    [`LEFT-ARC`],
+
+    [[ROOT, presented]],
+    [[at, the, NLP, conference]],
+    [presented $arrow$ findings],
+    [`RIGHT-ARC`],
+
+    [[ROOT, presented, at]], [[the, NLP, conference]], [], [`SHIFT`],
+
+    [[ROOT, presented, at, the]], [[NLP, conference]], [], [`SHIFT`],
+
+    [[ROOT, presented, at, the, NLP]], [[conference]], [], [`SHIFT`],
+
+    [[ROOT, presented, at, the, NLP, conference]], [[]], [], [`SHIFT`],
+
+    [[ROOT, presented, at, the, conference]],
+    [[]],
+    [conference $arrow$ NLP],
+    [`LEFT-ARC`],
+
+    [[ROOT, presented, at, conference]],
+    [[]],
+    [conference $arrow$ the],
+    [`LEFT-ARC`],
+
+    [[ROOT, presented, conference]],
+    [[]],
+    [conference $arrow$ at],
+    [`LEFT-ARC`],
+
+    [[ROOT, presented]], [[]], [presented $arrow$ conference], [`RIGHT-ARC`],
+
+    [[ROOT]], [[]], [presented $arrow$ ROOT], [`RIGHT-ARC`],
   )
 ]
 
 #set enum(start: 2)
 + (2 points) A sentence containing $n$ words will be parsed in how many steps (in terms of $n$)? Briefly explain in 1--2 sentences why.
+
+A sentence with $n$ words will be parsed in $2n$ steps. This is because each word must be shifted from the buffer to the stack (which takes $n$ steps), and then each word must be removed from the stack through either a `LEFT-ARC` or `RIGHT-ARC` transition (which also takes $n$ steps), resulting in a total of $2n$ steps.
 
 + (6 points) Implement the `__init__` and `parse_step` functions in the `PartialParse` class in `parser_transitions.py`. This implements the transition mechanics your parser will use. You can run basic (non-exhaustive) tests by running `python parser_transitions.py part_c`.
 
