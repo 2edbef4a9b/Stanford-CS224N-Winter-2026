@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dependency-parsing"
+version = "0.1.0"
+description = "Assignment 02 Word2Vec and Dependency Parsing"
+authors = [{ name = "2edbef4a9b", email = "echofedn@outlook.com" }]
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "docopt>=0.6.2",
+    "numpy>=2.4.3",
+    "tqdm>=4.67.3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black>=26.3.0",
+    "mypy>=1.19.1",
+    "ruff>=0.15.5",
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = [
+  { index = "pytorch-cpu" },
+]
+torchvision = [
+  { index = "pytorch-cpu" },
+]
