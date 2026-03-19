@@ -6,7 +6,7 @@
   breakable: true,
 )
 
-#import "../utils.typ": mtext, unjustified
+#import "../utils.typ": answer, mtext, unjustified
 
 = Neural Transition-Based Dependency Parsing (40 points)
 
@@ -34,86 +34,85 @@ On each step, your parser will decide among the three transitions using a neural
     image("../assets/example.png", width: 80%),
   )
 
-#unjustified[
-  #table(
-    columns: (1fr, 1.5fr, 1fr, 1fr),
-    align: (left, left, left, left),
-    stroke: 0.4pt + luma(180),
-    [*Stack*], [*Buffer*], [*New dependency*], [*Transition*],
+  #unjustified[
+    #table(
+      columns: (1fr, 1.5fr, 1fr, 1fr),
+      align: (left, left, left, left),
+      stroke: 0.4pt + luma(180),
+      [*Stack*], [*Buffer*], [*New dependency*], [*Transition*],
 
-    [[ROOT]],
-    [[I, presented, my, findings, at, the, NLP, conference]],
-    [],
-    [Initial Configuration],
+      [[ROOT]],
+      [[I, presented, my, findings, at, the, NLP, conference]],
+      [],
+      [Initial Configuration],
 
-    [[ROOT, I]],
-    [[presented, my, findings, at, the, NLP, conference]],
-    [],
-    [`SHIFT`],
+      [[ROOT, I]],
+      [[presented, my, findings, at, the, NLP, conference]],
+      [],
+      [`SHIFT`],
 
-    [[ROOT, I, presented]],
-    [[my, findings, at, the, NLP, conference]],
-    [],
-    [`SHIFT`],
+      [[ROOT, I, presented]],
+      [[my, findings, at, the, NLP, conference]],
+      [],
+      [`SHIFT`],
 
-    [[ROOT, presented]],
-    [[my, findings, at, the, NLP, conference]],
-    [presented $arrow$ I],
-    [`LEFT-ARC`],
+      [[ROOT, presented]],
+      [[my, findings, at, the, NLP, conference]],
+      [presented $arrow$ I],
+      [`LEFT-ARC`],
 
-    [[ROOT, presented, my]],
-    [[findings, at, the, NLP, conference]],
-    [],
-    [`SHIFT`],
+      [[ROOT, presented, my]],
+      [[findings, at, the, NLP, conference]],
+      [],
+      [`SHIFT`],
 
-    [[ROOT, presented, my, findings]],
-    [[at, the, NLP, conference]],
-    [],
-    [`SHIFT`],
+      [[ROOT, presented, my, findings]],
+      [[at, the, NLP, conference]],
+      [],
+      [`SHIFT`],
 
-    [[ROOT, presented, my]],
-    [[at, the, NLP, conference]],
-    [findings $arrow$ my],
-    [`LEFT-ARC`],
+      [[ROOT, presented, my]],
+      [[at, the, NLP, conference]],
+      [findings $arrow$ my],
+      [`LEFT-ARC`],
 
-    [[ROOT, presented]],
-    [[at, the, NLP, conference]],
-    [presented $arrow$ findings],
-    [`RIGHT-ARC`],
+      [[ROOT, presented]],
+      [[at, the, NLP, conference]],
+      [presented $arrow$ findings],
+      [`RIGHT-ARC`],
 
-    [[ROOT, presented, at]], [[the, NLP, conference]], [], [`SHIFT`],
+      [[ROOT, presented, at]], [[the, NLP, conference]], [], [`SHIFT`],
 
-    [[ROOT, presented, at, the]], [[NLP, conference]], [], [`SHIFT`],
+      [[ROOT, presented, at, the]], [[NLP, conference]], [], [`SHIFT`],
 
-    [[ROOT, presented, at, the, NLP]], [[conference]], [], [`SHIFT`],
+      [[ROOT, presented, at, the, NLP]], [[conference]], [], [`SHIFT`],
 
-    [[ROOT, presented, at, the, NLP, conference]], [[]], [], [`SHIFT`],
+      [[ROOT, presented, at, the, NLP, conference]], [[]], [], [`SHIFT`],
 
-    [[ROOT, presented, at, the, conference]],
-    [[]],
-    [conference $arrow$ NLP],
-    [`LEFT-ARC`],
+      [[ROOT, presented, at, the, conference]],
+      [[]],
+      [conference $arrow$ NLP],
+      [`LEFT-ARC`],
 
-    [[ROOT, presented, at, conference]],
-    [[]],
-    [conference $arrow$ the],
-    [`LEFT-ARC`],
+      [[ROOT, presented, at, conference]],
+      [[]],
+      [conference $arrow$ the],
+      [`LEFT-ARC`],
 
-    [[ROOT, presented, conference]],
-    [[]],
-    [conference $arrow$ at],
-    [`LEFT-ARC`],
+      [[ROOT, presented, conference]],
+      [[]],
+      [conference $arrow$ at],
+      [`LEFT-ARC`],
 
-    [[ROOT, presented]], [[]], [presented $arrow$ conference], [`RIGHT-ARC`],
+      [[ROOT, presented]], [[]], [presented $arrow$ conference], [`RIGHT-ARC`],
 
-    [[ROOT]], [[]], [presented $arrow$ ROOT], [`RIGHT-ARC`],
-  )
-]
+      [[ROOT]], [[]], [presented $arrow$ ROOT], [`RIGHT-ARC`],
+    )
+  ]
 
-#set enum(start: 2)
 + (2 points) A sentence containing $n$ words will be parsed in how many steps (in terms of $n$)? Briefly explain in 1--2 sentences why.
 
-A sentence with $n$ words will be parsed in $2n$ steps. This is because each word must be shifted from the buffer to the stack (which takes $n$ steps), and then each word must be removed from the stack through either a `LEFT-ARC` or `RIGHT-ARC` transition (which also takes $n$ steps), resulting in a total of $2n$ steps.
+  A sentence with $n$ words will be parsed in $2n$ steps. This is because each word must be shifted from the buffer to the stack (which takes $n$ steps), and then each word must be removed from the stack through either a `LEFT-ARC` or `RIGHT-ARC` transition (which also takes $n$ steps), resulting in a total of $2n$ steps.
 
 + (6 points) Implement the `__init__` and `parse_step` functions in the `PartialParse` class in `parser_transitions.py`. This implements the transition mechanics your parser will use. You can run basic (non-exhaustive) tests by running `python parser_transitions.py part_c`.
 
@@ -163,7 +162,7 @@ A sentence with $n$ words will be parsed in $2n$ steps. This is because each wor
   where $bold(E) in RR^(abs(V) times d)$ is an embedding matrix with each row $bold(E)_w$ as the vector for a particular word $w$ with dimension $d$. We then compute our prediction as:
 
   $
-    bold(h) = #mtext[relu] (bold(x) bold(W) + bold(b)_1)
+    bold(h) = #mtext[ReLU] (bold(x) bold(W) + bold(b)_1)
   $
 
   $
@@ -174,7 +173,7 @@ A sentence with $n$ words will be parsed in $2n$ steps. This is because each wor
     hat(bold(y)) = #mtext[softmax] (bold(l))
   $
 
-  where $bold(h)$ is referred to as the hidden layer, $bold(l)$ is referred to as the logits, $hat(bold(y))$ is referred to as the predictions, and $#mtext[relu] (z) = max(z, 0)$). We will train the model to minimize cross-entropy loss:
+  where $bold(h)$ is referred to as the hidden layer, $bold(l)$ is referred to as the logits, $hat(bold(y))$ is referred to as the predictions, and $#mtext[ReLU] (z) = max(z, 0)$). We will train the model to minimize cross-entropy loss:
 
   $
     J(theta) = #mtext[CE] (bold(y), hat(bold(y))) = -sum_(j = 1)^3 bold(y)_j log hat(bold(y))_j
@@ -182,9 +181,39 @@ A sentence with $n$ words will be parsed in $2n$ steps. This is because each wor
 
   where $bold(y)_j$ denotes the $j$th element of $bold(y)$. To compute the loss for the training set, we average this $J(theta)$ across all training examples.
 
-  + Compute the derivative of $bold(h) = #mtext[relu] (bold(x) bold(W) + bold(b)_1)$ with respect to $bold(x)$. For simplicity, you only need to show the derivative $(partial h_i) / (partial x_j)$ for some index $i$ and $j$. You may ignore the case where the derivative is not defined at 0.
+  + Compute the derivative of $bold(h) = #mtext[ReLU] (bold(x) bold(W) + bold(b)_1)$ with respect to $bold(x)$. For simplicity, you only need to show the derivative $(partial h_i) / (partial x_j)$ for some index $i$ and $j$. You may ignore the case where the derivative is not defined at 0.
+
+    #answer
+
+    Let $z = (bold(x) bold(W) + bold(b)_1)$, then $z_i = sum_(j=1)^(d m) x_j W_(j i) + b_(1 i)$
+
+    $
+      (partial h_i) / (partial x_j) &= (partial #mtext[ReLU] (z_i)) / (partial z_i) dot (partial z_i) / (partial x_j) \
+      &= cases(
+        0 & quad z_i <= 0,
+        W_(j i) & quad z_i > 0,
+      )
+    $
 
   + Recall in part 1b, we computed the partial derivative of $bold(J)_"naive-softmax"(bold(v)_c, o, bold(U))$. Likewise, please compute the partial derivative of $J(theta)$ with respect to the $i$th entry of $bold(l)$, which is denoted as $bold(l)_i$. Specifically, compute $(partial #mtext[CE] (bold(y), hat(bold(y)))) / (partial bold(l)_i)$, assuming that $bold(l) in RR^3$, $hat(bold(y)) in RR^3$, $bold(y) in RR^3$, and the true label is $c$ (i.e., $y_j = 1$ if $j = c$). *Hint:* Use the chain rule: $(partial J)/(partial bold(l)) = (partial J)/(partial hat(bold(y))) dot (partial hat(bold(y)))/(partial bold(l))$.
+
+    #answer
+
+    $
+      J(theta) & = #mtext[CE] (bold(y), hat(bold(y))) \
+               & = - log hat(bold(y))_c \
+               & = - log(exp(bold(l)_c) / (sum_(j=1)^3 exp(bold(l)_j))) \
+               & = - bold(l)_c + log(sum_(j=1)^3 exp(bold(l)_j))
+    $
+
+    $
+      (partial #mtext[CE] (bold(y), hat(bold(y)))) / (partial bold(l)_i) &= - (partial bold(l)_c) / (partial bold(l)_i) + (partial log(sum_(j=1)^3 exp(bold(l)_j))) / (partial bold(l)_i) \
+      &= cases(
+        -1 + exp(bold(l)_c) / (sum_(j=1)^3 exp(bold(l)_j)) & quad i = c,
+        exp(bold(l)_i) / (sum_(j=1)^3 exp(bold(l)_j)) & quad i != c,
+      ) \
+      &= hat(bold(y))_i - y_i
+    $
 
   + We will use UAS score as our evaluation metric. UAS refers to Unlabeled Attachment Score, which is computed as the ratio between number of correctly predicted dependencies and the number of total dependencies despite of the relations (our model doesn't predict this).
 
