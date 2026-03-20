@@ -7,19 +7,19 @@ Sahil Chopra <schopra8@stanford.edu>
 Haoshen Hong <haoshen@stanford.edu>
 """
 
-from datetime import datetime
+import argparse
+import math
 import os
 import pickle
-import math
 import time
-import argparse
+from datetime import datetime
 
-from torch import nn, optim
 import torch
+from torch import nn, optim
 from tqdm import tqdm
 
 from parser_model import ParserModel
-from utils.parser_utils import minibatches, load_and_preprocess_data, AverageMeter
+from utils.parser_utils import AverageMeter, load_and_preprocess_data, minibatches
 
 parser = argparse.ArgumentParser(
     description="Train neural dependency parser in pytorch"
@@ -59,6 +59,8 @@ def train(
     ### Please see the following docs for support:
     ###     Adam Optimizer: https://pytorch.org/docs/stable/optim.html
     ###     Cross Entropy Loss: https://pytorch.org/docs/stable/nn.html#crossentropyloss
+    optimizer = optim.Adam(parser.model.parameters(), lr=lr)
+    loss_func = nn.CrossEntropyLoss()
 
     ### END YOUR CODE
 
@@ -112,6 +114,10 @@ def train_for_epoch(parser, train_data, dev_data, optimizer, loss_func, batch_si
             ###      4) Take step with the optimizer
             ### Please see the following docs for support:
             ###     Optimizer Step: https://pytorch.org/docs/stable/optim.html#optimizer-step
+            logits = parser.model(train_x)
+            loss = loss_func(logits, train_y)
+            loss.backward()
+            optimizer.step()
 
             ### END YOUR CODE
             prog.update(1)

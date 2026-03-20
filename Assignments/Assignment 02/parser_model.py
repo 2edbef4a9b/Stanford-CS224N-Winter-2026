@@ -76,6 +76,19 @@ class ParserModel(nn.Module):
         ###     Dropout: https://pytorch.org/docs/stable/nn.html#dropout-layers
         ###
         ### See the PDF for hints.
+        self.embed_to_hidden_weight = nn.Parameter(
+            torch.empty(n_features * self.embed_size, hidden_size)
+        )
+        nn.init.xavier_uniform_(self.embed_to_hidden_weight)
+        self.embed_to_hidden_bias = nn.Parameter(torch.empty(hidden_size))
+        nn.init.uniform_(self.embed_to_hidden_bias)
+
+        self.dropout = nn.Dropout(dropout_prob)
+
+        self.hidden_to_logits_weight = nn.Parameter(torch.empty(hidden_size, n_classes))
+        nn.init.xavier_uniform_(self.hidden_to_logits_weight)
+        self.hidden_to_logits_bias = nn.Parameter(torch.empty(n_classes))
+        nn.init.uniform_(self.hidden_to_logits_bias)
 
         ### END YOUR CODE
 
@@ -107,7 +120,7 @@ class ParserModel(nn.Module):
         ###     Gather: https://pytorch.org/docs/stable/torch.html#torch.gather
         ###     View: https://pytorch.org/docs/stable/tensors.html#torch.Tensor.view
         ###     Flatten: https://pytorch.org/docs/stable/generated/torch.flatten.html
-        x = None
+        x = torch.flatten(self.embeddings[w], start_dim=1)
 
         ### END YOUR CODE
         return x
@@ -134,7 +147,7 @@ class ParserModel(nn.Module):
         ### YOUR CODE HERE (~3-5 lines)
         ### TODO:
         ###     Complete the forward computation as described in write-up. In addition, include a dropout layer
-        ###     as decleared in `__init__` after ReLU function.
+        ###     as declared in `__init__` after ReLU function.
         ###
         ### Note: We do not apply the softmax to the logits here, because
         ### the loss function (torch.nn.CrossEntropyLoss) applies it more efficiently.
@@ -142,7 +155,14 @@ class ParserModel(nn.Module):
         ### Please see the following docs for support:
         ###     Matrix product: https://pytorch.org/docs/stable/torch.html#torch.matmul
         ###     ReLU: https://pytorch.org/docs/stable/nn.html?highlight=relu#torch.nn.functional.relu
-        logits = None
+        embeddings = self.embedding_lookup(w)
+        hidden_states = F.relu(
+            embeddings @ self.embed_to_hidden_weight + self.embed_to_hidden_bias
+        )
+        hidden_states = self.dropout(hidden_states)
+        logits = (
+            hidden_states @ self.hidden_to_logits_weight + self.hidden_to_logits_bias
+        )
 
         ### END YOUR CODE
         return logits
