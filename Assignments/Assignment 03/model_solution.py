@@ -4,7 +4,6 @@ A bare-bones GPT-2 style transformer.
 
 import math
 from dataclasses import dataclass
-from typing import Dict
 
 import torch
 from jaxtyping import Float, Int
@@ -97,7 +96,7 @@ class GELU(nn.Module):
     Reference: Gaussian Error Linear Units (GELU) paper: https://arxiv.org/abs/1606.08415
     """
 
-    def forward(self, x: Float[Tensor, "..."]) -> Float[Tensor, "..."]:
+    def forward(self, x: Float[Tensor, ...]) -> Float[Tensor, ...]:
         return 0.5 * x * (1.0 + torch.tanh(math.sqrt(2.0 / math.pi) * (x + 0.044715 * torch.pow(x, 3.0))))  # fmt: skip
 
 
@@ -132,8 +131,9 @@ class DecoderBlock(nn.Module):
         self, x: Float[Tensor, "batch seq_len d_model"]
     ) -> Float[Tensor, "batch seq_len d_model"]:
 
-        # TODO complete
-        return torch.empty(1)
+        x = x + self.attention(self.pre_layer_norm(x))
+        x = x + self.mlp(self.post_layer_norm(x))
+        return x
 
 
 class Transformer(nn.Module):
@@ -175,8 +175,23 @@ class Transformer(nn.Module):
         self, x: Int[Tensor, "batch_size seq_len"]
     ) -> Float[Tensor, "batch seq_len vocab_size"]:
 
-        # TODO, complete
-        return torch.empty(1)
+        # Token embeddings
+        embeddings = self.embeddings(x)
+
+        # Position embeddings
+        positions = torch.arange(start=0, end=x.shape[1], device=x.device)
+        position_embeddings = self.position_embeddings(positions)
+        hidden_states = embeddings + position_embeddings
+
+        # Decoder blocks
+        for block in self.backbone:
+            hidden_states = block(hidden_states)
+
+        # Final layer norm and language modeling head
+        hidden_states = self.final_layer_norm(hidden_states)
+        logits = self.lm_head(hidden_states)
+
+        return logits
 
     @torch.no_grad()
     def generate(
@@ -185,8 +200,13 @@ class Transformer(nn.Module):
         num_new_tokens: int,
     ) -> Int[Tensor, "batch_size seq_len+num_new_tokens"]:
 
-        # TODO, complete
-        return torch.empty(1)
+        for _ in range(num_new_tokens):
+            logits = self(x)
+            last_logit = logits[:, -1, :]
+            next_token = torch.argmax(last_logit, dim=-1, keepdim=True)
+            x = torch.cat((x, next_token), dim=-1)
+
+        return x
 
     def get_loss_on_batch(
         self,
@@ -215,7 +235,7 @@ class Transformer(nn.Module):
 
         # Load weights from HuggingFace
         model_hf = GPT2LMHeadModel.from_pretrained("gpt2")
-        converted_state_dict: Dict[str, Tensor] = state_dict_converter(
+        converted_state_dict: dict[str, Tensor] = state_dict_converter(
             model_hf.state_dict()
         )
 

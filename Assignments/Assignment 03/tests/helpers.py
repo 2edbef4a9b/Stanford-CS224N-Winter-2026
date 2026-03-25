@@ -3,7 +3,6 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import random
-from typing import Tuple
 
 import numpy as np
 import torch
@@ -29,7 +28,7 @@ def set_seed():
 
 def get_test_modules_from_model(
     model: Transformer,
-) -> Tuple[MLP, CausalAttention, DecoderBlock]:
+) -> tuple[MLP, CausalAttention, DecoderBlock]:
 
     decoder_block: DecoderBlock = model.backbone[0]
     mlp: MLP = decoder_block.mlp

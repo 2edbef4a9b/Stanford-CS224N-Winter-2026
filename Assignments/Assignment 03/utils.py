@@ -1,10 +1,9 @@
-from typing import Dict
 
 import torch
 from torch import Tensor
 
 
-def switch_backbone_key(key: str, value: Tensor) -> Dict[str, Tensor]:
+def switch_backbone_key(key: str, value: Tensor) -> dict[str, Tensor]:
     """
     Their keys
 
@@ -91,7 +90,7 @@ def switch_backbone_key(key: str, value: Tensor) -> Dict[str, Tensor]:
 
 
 @torch.no_grad()
-def state_dict_converter(state_dict: Dict[str, Tensor]) -> Dict[str, Tensor]:
+def state_dict_converter(state_dict: dict[str, Tensor]) -> dict[str, Tensor]:
     """
     Convert the state dict from the HuggingFace GPT-2 model to the state dict of our Transformer model.
     """

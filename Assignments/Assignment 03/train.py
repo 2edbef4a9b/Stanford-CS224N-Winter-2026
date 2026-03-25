@@ -5,7 +5,6 @@ import warnings
 warnings.filterwarnings("ignore")
 
 import os
-from typing import List, Optional
 
 import matplotlib.pyplot as plt
 import torch
@@ -41,11 +40,11 @@ def get_chunked_tinystories(
     train_dataset = train_dataset.select(range(int(len(train_dataset) * 0.01)))
 
     # Tokenize the dataset
-    chunks: List[List[int]] = []
-    current_chunk: List[int] = []
+    chunks: list[list[int]] = []
+    current_chunk: list[int] = []
     for row in tqdm(train_dataset, desc="Tokenizing dataset"):
         document: str = row["text"]
-        tokens: List[int] = tokenizer(
+        tokens: list[int] = tokenizer(
             document, truncation=True, max_length=chunk_size
         ).input_ids
 
@@ -63,8 +62,8 @@ def get_chunked_tinystories(
 
 
 def plot_results(
-    losses: List[float],
-    grad_norms: List[float],
+    losses: list[float],
+    grad_norms: list[float],
     save_path: str,
 ) -> None:
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
@@ -90,10 +89,10 @@ def plot_results(
 
 def train(
     learning_rate: float,
-    gradient_clipping: Optional[float],
+    gradient_clipping: float | None,
     model_config: ModelConfig,
     batch_size: int,
-    max_steps: Optional[int] = None,
+    max_steps: int | None = None,
 ) -> None:
 
     if gradient_clipping is None:
@@ -121,8 +120,8 @@ def train(
 
     num_chunks: int = dataset.shape[0]
 
-    losses: List[float] = []
-    grad_norms: List[float] = []
+    losses: list[float] = []
+    grad_norms: list[float] = []
     num_steps_completed: int = 0
 
     if max_steps is not None:
