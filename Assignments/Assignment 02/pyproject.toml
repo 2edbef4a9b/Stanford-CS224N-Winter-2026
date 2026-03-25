@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "dependency-parsing"
 version = "0.1.0"
-description = "Assignment 02 Word2Vec and Dependency Parsing"
+description = "Neural network based dependency parsing implementation"
 authors = [{ name = "2edbef4a9b", email = "echofedn@outlook.com" }]
 readme = "README.md"
 requires-python = ">=3.14"
@@ -22,10 +22,6 @@ dev = [
     "mypy>=1.19.1",
     "ruff>=0.15.5",
 ]
-
-[tool.setuptools.packages.find]
-where = ["."]
-exclude = ["data", "results"]
 
 [[tool.uv.index]]
 name = "pytorch-cpu"

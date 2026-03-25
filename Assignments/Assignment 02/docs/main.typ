@@ -25,10 +25,10 @@
 )
 
 #show math.equation: set text(font: "Euler Math")
-#show cite: set text(fill: rgb("#D2BAED"))
-#show ref: set text(fill: rgb("#D2BAED"))
-#show footnote: set text(fill: rgb("#D2BAED"))
-#show link: set text(font: "VictorMono NF", fill: rgb("#D2BAED"), size: 10pt)
+#show cite: set text(fill: rgb("#A68DE9"))
+#show ref: set text(fill: rgb("#A68DE9"))
+#show footnote: set text(fill: rgb("#A68DE9"))
+#show link: set text(font: "VictorMono NF", fill: rgb("#A68DE9"), size: 10pt)
 #show link: underline
 
 #show raw.where(block: false): it => box(
@@ -39,7 +39,7 @@
 )[
   #text(
     font: "VictorMono NF",
-    fill: rgb("#D2BAED"),
+    fill: rgb("#A68DE9"),
   )[#it.text]
 ]
 
@@ -70,7 +70,7 @@
 #show figure.caption: it => block(width: 101%)[
   #set text(size: 10pt)
   #set align(center)
-  #text(weight: "bold", fill: rgb("#D2BAED"))[
+  #text(weight: "bold", fill: rgb("#A68DE9"))[
     #it.supplement
     #context it.counter.display(it.numbering).
   ] #it.body
@@ -84,7 +84,7 @@
   )[CS 224N Winter 2026 Assignment 02 \
     Word2Vec & Dependency Parsing]
 
-  #text(size: 12pt, fill: rgb("#D2BAED"))[#(
+  #text(size: 12pt, fill: rgb("#A68DE9"))[#(
     datetime.today().display("[month repr:long] [day], [year]")
   )]
 ]
