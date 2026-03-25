@@ -55,8 +55,40 @@ class CausalAttention(nn.Module):
         self, x: Float[Tensor, "batch seq_len d_model"]
     ) -> Float[Tensor, "batch seq_len d_model"]:
 
-        # TODO, complete
-        return torch.empty(1)
+        # Calculate queries, keys, values
+        w_k = self.W_k(x)
+        w_q = self.W_q(x)
+        w_v = self.W_v(x)
+
+        # Get batch size and sequence length
+        batch_size, seq_len, _ = x.shape
+
+        # Reshape to (batch, seq_len, n_heads, d_attention)
+        w_k = w_k.view(batch_size, seq_len, -1, self.d_attention)
+        w_q = w_q.view(batch_size, seq_len, -1, self.d_attention)
+        w_v = w_v.view(batch_size, seq_len, -1, self.d_attention)
+
+        # Transpose to (batch, n_heads, seq_len, d_attention)
+        w_k = w_k.transpose(1, 2)
+        w_q = w_q.transpose(1, 2)
+        w_v = w_v.transpose(1, 2)
+
+        # Calculate attention scores
+        mask = self.causal_mask[:, :, :seq_len, :seq_len]
+        scores = torch.matmul(w_q, w_k.transpose(-2, -1)) / math.sqrt(self.d_attention)
+        scores = scores.masked_fill(mask == 0, float("-inf"))
+
+        # Apply softmax to get attention weights
+        weights = torch.softmax(scores, dim=-1)
+        hidden_states = torch.matmul(weights, w_v)
+
+        # Transpose back to (batch, seq_len, n_heads, d_attention)
+        hidden_states = hidden_states.transpose(1, 2).contiguous()
+
+        # Reshape back to (batch, seq_len, d_model)
+        hidden_states = hidden_states.view(batch_size, seq_len, -1)
+
+        return self.W_o(hidden_states)
 
 
 class GELU(nn.Module):
@@ -81,8 +113,10 @@ class MLP(nn.Module):
         self, x: Float[Tensor, "batch seq_len d_model"]
     ) -> Float[Tensor, "batch seq_len d_model"]:
 
-        # TODO, complete
-        return torch.empty(1)
+        x = self.fc1(x)
+        x = self.gelu(x)
+        x = self.fc2(x)
+        return x
 
 
 class DecoderBlock(nn.Module):
