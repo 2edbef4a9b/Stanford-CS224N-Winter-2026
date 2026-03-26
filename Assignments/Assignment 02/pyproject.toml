@@ -23,6 +23,9 @@ dev = [
     "ruff>=0.15.5",
 ]
 
+[tool.ruff]
+lint.select = ["E", "F", "W", "I", "N", "UP", "B", "SIM"]
+
 [[tool.uv.index]]
 name = "pytorch-cpu"
 url = "https://download.pytorch.org/whl/cpu"

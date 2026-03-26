@@ -34,3 +34,14 @@ If you want to run a specific test, e.g. `test_forward`:
 ```bash
 pytest test_student.py::test_forward
 ```
+
+Available tests include:
+
+```bash
+pytest test_student.py::test_mlp
+pytest test_student.py::test_attention
+pytest test_student.py::test_decoder_block
+pytest test_student.py::test_forward
+pytest test_student.py::test_generate
+pytest test_student.py::test_loss_on_batch
+```
