@@ -5,15 +5,16 @@ import warnings
 warnings.filterwarnings("ignore")
 
 import os
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import torch
-from datasets import load_dataset
 from jaxtyping import Int
 from torch import Tensor
 from tqdm import tqdm
 from transformers import AutoTokenizer
 
+from datasets import load_dataset
 from model_solution import ModelConfig, Transformer
 
 if torch.cuda.is_available():
@@ -87,12 +88,59 @@ def plot_results(
     plt.close()
 
 
+def save_checkpoint(
+    path: str,
+    model: Transformer,
+    optimizer: torch.optim.Optimizer,
+    model_config: ModelConfig,
+    step: int,
+    losses: list[float],
+    grad_norms: list[float],
+) -> None:
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    torch.save(
+        {
+            "model_state_dict": model.state_dict(),
+            "optimizer_state_dict": optimizer.state_dict(),
+            "model_config": model_config,
+            "step": step,
+            "losses": losses,
+            "grad_norms": grad_norms,
+        },
+        path,
+    )
+
+
+def load_checkpoint(
+    path: str,
+    model_config: ModelConfig,
+) -> tuple[Transformer, torch.optim.Optimizer, int, list[float], list[float]]:
+    checkpoint = torch.load(path, map_location=device)
+
+    model = Transformer(model_config).to(device)
+    model.load_state_dict(checkpoint["model_state_dict"])
+
+    optimizer = torch.optim.AdamW(
+        model.parameters(), lr=checkpoint.get("learning_rate", 1e-5)
+    )
+    if "optimizer_state_dict" in checkpoint:
+        optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+
+    step = int(checkpoint.get("step", 0))
+    losses = list(checkpoint.get("losses", []))
+    grad_norms = list(checkpoint.get("grad_norms", []))
+
+    return model, optimizer, step, losses, grad_norms
+
+
 def train(
     learning_rate: float,
     gradient_clipping: float | None,
     model_config: ModelConfig,
     batch_size: int,
     max_steps: int | None = None,
+    checkpoint_path: str = "./checkpoints/model_checkpoint.pt",
+    resume_from_checkpoint: str | None = None,
 ) -> None:
 
     if gradient_clipping is None:
@@ -113,16 +161,20 @@ def train(
         )
         torch.save(dataset, cached_dataset_path)
 
-    # Create dense batches of [batch_size, seq_len]
-    model = Transformer(model_config).to(device)
-
-    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
+    if resume_from_checkpoint is not None and os.path.exists(resume_from_checkpoint):
+        print(f"Resuming from checkpoint: {resume_from_checkpoint}")
+        model, optimizer, num_steps_completed, losses, grad_norms = load_checkpoint(
+            resume_from_checkpoint, model_config
+        )
+        model = model.to(device)
+    else:
+        model = Transformer(model_config).to(device)
+        optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
+        num_steps_completed = 0
+        losses = []
+        grad_norms = []
 
     num_chunks: int = dataset.shape[0]
-
-    losses: list[float] = []
-    grad_norms: list[float] = []
-    num_steps_completed: int = 0
 
     if max_steps is not None:
         tqdm_max_steps = min(max_steps, num_chunks // batch_size)
@@ -166,6 +218,17 @@ def train(
     # Done with training, plot results in single plot
     plot_results(losses, grad_norms, save_path="./losses_and_grad_norms.png")
 
+    save_checkpoint(
+        path=checkpoint_path,
+        model=model,
+        optimizer=optimizer,
+        model_config=model_config,
+        step=num_steps_completed,
+        losses=losses,
+        grad_norms=grad_norms,
+    )
+    print(f"Saved checkpoint to {checkpoint_path}")
+
 
 if __name__ == "__main__":
     tiny_model_config = ModelConfig(
@@ -182,4 +245,6 @@ if __name__ == "__main__":
         model_config=tiny_model_config,
         batch_size=16,
         max_steps=100,
+        checkpoint_path="./checkpoints/tiny_model.pt",
+        resume_from_checkpoint=None,
     )

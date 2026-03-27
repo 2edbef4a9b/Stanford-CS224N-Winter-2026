@@ -1,5 +1,7 @@
 *.egg-info
 .venv
 __pycache__
+checkpoints
 data
+datasets
 results
