@@ -213,8 +213,18 @@ class Transformer(nn.Module):
         input_ids: Int[Tensor, "batch_size seq_len"],
     ) -> Float[Tensor, ""]:
 
-        # TODO, complete
-        return torch.empty(1)
+        # Construct inputs and targets for next token prediction
+        inputs = input_ids[:, :-1]
+        targets = input_ids[:, 1:]
+
+        # Compute logits
+        logits = self(inputs)
+
+        # Flatten logits and targets for loss computation
+        targets = targets.flatten(0, 1)
+        logits = logits.flatten(0, 1)
+
+        return torch.nn.functional.cross_entropy(logits, targets)
 
     @classmethod
     def from_pretrained(cls):
