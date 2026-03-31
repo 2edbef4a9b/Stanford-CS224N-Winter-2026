@@ -45,7 +45,7 @@ def main():
 
     tokenizer = AutoTokenizer.from_pretrained("gpt2")
 
-    prompt = "Once upon a time"
+    prompt = "Once upon a time, "
     input_ids = tokenizer(prompt, return_tensors="pt").input_ids.to(device)
 
     with torch.no_grad():

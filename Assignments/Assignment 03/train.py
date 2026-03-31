@@ -228,19 +228,22 @@ def train(
         grad_norms=grad_norms,
     )
     print(f"Saved checkpoint to {checkpoint_path}")
+    print(f"Final loss after {num_steps_completed} steps: {losses[-1]:.6f}")
+    print(f"Best loss during training: {min(losses):.6f}")
+    print(f"Final gradient norm: {grad_norms[-1]:.6f}")
 
 
 if __name__ == "__main__":
     tiny_model_config = ModelConfig(
-        d_model=33,
-        n_heads=3,
+        d_model=64,
+        n_heads=4,
         n_layers=3,
-        context_length=512,
+        context_length=128,
         vocab_size=50257,
     )
 
     train(
-        learning_rate=1e-5,
+        learning_rate=1e-3,
         gradient_clipping=1,
         model_config=tiny_model_config,
         batch_size=16,
