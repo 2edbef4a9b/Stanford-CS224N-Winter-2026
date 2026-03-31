@@ -50,5 +50,115 @@ This will help you not only write less buggy code, but also make your code far m
   When you are done, submit:
 
   - A description of each change you made.
-  - Up to three new learning curves, one for each change you made; and additionally include the baseline from biii).
+  - Up to three new learning curves, one for each change you made; and additionally include the baseline from (b)(iii).
   - The lowest loss you achieved after 100 steps.
+
+  #answer
+
+  + Baseline
+
+    Results:
+
+    - Final loss after 100 steps: `10.767414`
+    - Best loss during training: `10.766797`
+    - Final gradient norm: `1.461107`
+
+    #figure(
+      image("../optimization/baseline.png"),
+      caption: [Baseline training curve from part (b)(iii).],
+    )
+
+  + Change 01: Increase the learning rate
+
+    The first change was to increase the learning rate from `1e-5` to `1e-3`.
+
+    Code Change:
+
+    ```diff
+         train(
+    -        learning_rate=1e-5,
+    +        learning_rate=1e-3,
+             gradient_clipping=1,
+             model_config=tiny_model_config,
+             batch_size=16,
+    ```
+
+    Results:
+
+    - Final loss after 100 steps: `6.451349`
+    - Best loss during training: `6.451349`
+    - Final gradient norm: `0.696417`
+
+    This produced a large improvement over the baseline, suggesting that the original training configuration was optimization-limited.
+
+    #figure(
+      image("../optimization/optimization01.png"),
+      caption: [Training curve after increasing the learning rate.],
+    )
+
+  + Change 02: Increase model size
+
+    The second change was to increase the model size. The original model had `d_model=33` and `n_heads=3`. We increased this to `d_model=64` and `n_heads=4`.
+
+    Code Change:
+
+    ```diff
+     if __name__ == "__main__":
+         tiny_model_config = ModelConfig(
+    -        d_model=33,
+    -        n_heads=3,
+    +        d_model=64,
+    +        n_heads=4,
+             n_layers=3,
+             context_length=512,
+             vocab_size=50257,
+         )
+    ```
+
+    Results:
+
+    - Final loss after 100 steps: `5.856569`
+    - Best loss during training: `5.803541`
+    - Final gradient norm: `0.582588`
+
+    This further improved the final loss, indicating that the original model was also somewhat capacity-limited.
+
+    #figure(
+      image("../optimization/optimization02.png"),
+      caption: [Training curve after increasing the model size.],
+    )
+
+  + Change 03: Reduce context length
+
+    Finally, keeping the larger model and higher learning rate, we reduced the context length from `512` to `128`. This means the model has to learn to predict tokens based on a smaller context, which should make the task easier.
+
+    Code Change:
+
+    ```diff
+     if __name__ == "__main__":
+         tiny_model_config = ModelConfig(
+             d_model=64,
+             n_heads=4,
+             n_layers=3,
+    -        context_length=512,
+    +        context_length=128,
+             vocab_size=50257,
+         )
+    ```
+
+    Results:
+
+    - Final loss after 100 steps: `5.713151`
+    - Best loss during training: `5.553332`
+    - Final gradient norm: `0.747328`
+
+    This produced the best final loss among all of the experiments.
+
+    #figure(
+      image("../optimization/optimization03.png"),
+      caption: [Training curve after reducing the context length.],
+    )
+
+  + Lowest loss achieved
+
+    The lowest loss achieved after 100 steps was `5.713151`, which was achieved after all three changes were implemented.
