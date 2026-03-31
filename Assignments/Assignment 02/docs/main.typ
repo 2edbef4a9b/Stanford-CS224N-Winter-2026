@@ -25,24 +25,33 @@
 )
 
 #show math.equation: set text(font: "Euler Math")
-#show cite: set text(fill: rgb("#A68DE9"))
-#show ref: set text(fill: rgb("#A68DE9"))
-#show footnote: set text(fill: rgb("#A68DE9"))
-#show link: set text(font: "VictorMono NF", fill: rgb("#A68DE9"), size: 10pt)
+#show cite: set text(fill: rgb("#C58DE9"))
+#show ref: set text(fill: rgb("#C58DE9"))
+#show footnote: set text(fill: rgb("#C58DE9"))
+#show link: set text(font: "VictorMono NF", fill: rgb("#C58DE9"), size: 10pt)
 #show link: underline
 
-#show raw.where(block: false): it => box(
-  fill: luma(245),
-  inset: (top: 0em, right: 0.2em, bottom: 0em, left: 0.2em),
+#show raw.where(block: false): box.with(
+  fill: luma(250),
+  inset: (top: 0em, right: 0.25em, bottom: 0em, left: 0.25em),
   radius: 0.3em,
-  outset: (top: 0.35em, right: 0.2em, bottom: 0.25em, left: 0.2em),
-)[
-  #text(
-    font: "VictorMono NF",
-    fill: rgb("#A68DE9"),
-  )[#it.text]
-]
+  outset: (top: 0.35em, right: 0.0em, bottom: 0.25em, left: 0.0em),
+)
 
+#show raw.where(block: false): set text(
+  fill: rgb("#FF8863"),
+)
+
+#show raw.where(block: true): block.with(
+  fill: luma(250),
+  inset: 1em,
+  radius: 0.5em,
+  width: 100%,
+)
+
+#show raw: set text(
+  font: "VictorMono NF",
+)
 #show heading.where(level: 1): set text(
   fill: rgb("#FFB3CC"),
   size: 16pt,
@@ -70,7 +79,7 @@
 #show figure.caption: it => block(width: 101%)[
   #set text(size: 10pt)
   #set align(center)
-  #text(weight: "bold", fill: rgb("#A68DE9"))[
+  #text(weight: "bold", fill: rgb("#C58DE9"))[
     #it.supplement
     #context it.counter.display(it.numbering).
   ] #it.body
@@ -84,7 +93,7 @@
   )[CS 224N Winter 2026 Assignment 02 \
     Word2Vec & Dependency Parsing]
 
-  #text(size: 12pt, fill: rgb("#A68DE9"))[#(
+  #text(size: 12pt, fill: rgb("#C58DE9"))[#(
     datetime.today().display("[month repr:long] [day], [year]")
   )]
 ]

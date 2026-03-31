@@ -229,7 +229,7 @@ On each step, your parser will decide among the three transitions using a neural
     *Hints:*
 
     #unjustified[
-      - Each of the variables you are asked to declare ( `self.embed_to_hidden_weight`, `self.embed_to_hidden_bias`, `self.hidden_to_logits_weight`, `self.hidden_to_logits_bias` ) corresponds to one of the variables above ($bold(W)$, $bold(b)_1$, $bold(U)$, $bold(b)_2$).
+      - Each of the variables you are asked to declare (`self.embed_to_hidden_weight`, `self.embed_to_hidden_bias`, `self.hidden_to_logits_weight`, `self.hidden_to_logits_bias`) corresponds to one of the variables above ($bold(W)$, $bold(b)_1$, $bold(U)$, $bold(b)_2$).
     ]
     - It may help to work backwards in the algorithm (start from $hat(bold(y))$) and keep track of the matrix/vector sizes.
     - Once you have implemented `embedding_lookup (e)` or `forward (f)` you can call `python parser_model.py` with flag `-e` or `-f` or both to run sanity checks with each function. These sanity checks are fairly basic and passing them doesn't mean your code is bug free.
