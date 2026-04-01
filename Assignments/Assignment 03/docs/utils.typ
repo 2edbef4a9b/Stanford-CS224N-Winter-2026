@@ -1,4 +1,4 @@
-#let mtext = text.with(font: "Spectral", size: 12pt, weight: "regular")
+#let mtext = text.with(font: "EB Garamond", size: 12pt, weight: "regular")
 
 #let unjustified(body) = {
   set par(justify: false)
