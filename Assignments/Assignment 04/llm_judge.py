@@ -1,8 +1,6 @@
 import json
-from typing import List, Dict
 
 from dotenv import load_dotenv
-
 
 # You may find these constants useful for structuring the judge's output.
 MODEL_E_PREFERED_TAG = "<MODEL_E_BETTER>"
@@ -10,10 +8,10 @@ MODEL_F_PREFERED_TAG = "<MODEL_F_BETTER>"
 NO_PREFERENCE_FOUND_TAG = "<NO_PREFERENCE_FOUND>"
 
 
-def load_alpaca_data() -> List[Dict[str, str]]:
+def load_alpaca_data() -> list[dict[str, str]]:
 
     dataset = []
-    with open("./data/alpaca_eval_first_30.jsonl", "r") as f:
+    with open("./data/alpaca_eval_first_30.jsonl") as f:
         for line in f:
             example = json.loads(line)
             dataset.append(example)

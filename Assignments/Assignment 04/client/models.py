@@ -3,13 +3,14 @@ Shared models between client and server.
 Students will receive this file along with query.py
 """
 
-from typing import List, Dict, Literal
+from typing import Literal
+
 from pydantic import BaseModel, Field
 
 
 class Query(BaseModel):
     # Use default_factory to avoid sharing the same list across instances.
-    turns: List[Dict[Literal["user", "assistant"], str]] = Field(default_factory=list)
+    turns: list[dict[Literal["user", "assistant"], str]] = Field(default_factory=list)
 
 
 class QueryResponse(BaseModel):
@@ -21,7 +22,7 @@ class QueryResponse(BaseModel):
 
 class ClientQuery(BaseModel):
     model_config = {"protected_namespaces": ()}
-    # ^ For surpressing namespace warning
+    # ^ For suppressing namespace warning
 
     query: Query
     model_id: str

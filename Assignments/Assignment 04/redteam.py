@@ -1,5 +1,4 @@
 import os
-from typing import Dict
 
 from dotenv import load_dotenv
 
@@ -26,7 +25,7 @@ def redteam_model(model_id) -> None:
     pass
 
 
-def passwords() -> Dict[str, str]:
+def passwords() -> dict[str, str]:
     """
     Return the passwords you extracted from models G, H, and I.
 

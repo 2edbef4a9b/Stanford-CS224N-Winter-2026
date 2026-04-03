@@ -1,12 +1,11 @@
-from abc import ABC, abstractmethod
-from typing import List, Dict, Tuple
-import os
-import hashlib
 import base64
+import hashlib
+import os
+from abc import ABC, abstractmethod
 
+from dotenv import load_dotenv
 from google import genai
 from google.genai import types
-from dotenv import load_dotenv
 
 # Add parent directory to path to import shared models
 from client.models import Query, QueryResponse
@@ -81,7 +80,7 @@ SAFE_PASSWORD_WORDS = [
 
 
 def deterministic_password(key: str, model_id: str) -> str:
-    full_key = f"{key}|{model_id}".encode("utf-8")
+    full_key = f"{key}|{model_id}".encode()
     h = hashlib.blake2s(full_key, digest_size=16).digest()
     idx = int.from_bytes(h, "big") % len(SAFE_PASSWORD_WORDS)
     return SAFE_PASSWORD_WORDS[idx]
@@ -111,7 +110,7 @@ class LLMProvider(ABC):
 
     @classmethod
     @abstractmethod
-    def get_supported_models(cls) -> List[str]:
+    def get_supported_models(cls) -> list[str]:
         pass
 
     @abstractmethod
@@ -243,7 +242,7 @@ class GeminiProvider(LLMProvider):
             raise Exception(f"Gemini API error: {str(e)}")
 
     @classmethod
-    def get_supported_models(cls) -> List[str]:
+    def get_supported_models(cls) -> list[str]:
         return list(cls.MODEL_MAPPING.keys())  # Return student-facing letters A-I
 
     def calculate_cost(
@@ -265,7 +264,7 @@ PROVIDERS = {
 }
 
 
-def get_provider(model_id: str) -> Tuple[str, LLMProvider]:
+def get_provider(model_id: str) -> tuple[str, LLMProvider]:
     """Get the appropriate provider for a model"""
     for provider_name, provider_cls in PROVIDERS.items():
         if model_id in provider_cls.get_supported_models():
@@ -275,7 +274,7 @@ def get_provider(model_id: str) -> Tuple[str, LLMProvider]:
     raise ValueError(f"No provider found for model: {model_id}")
 
 
-def get_all_supported_models() -> Dict[str, List[str]]:
+def get_all_supported_models() -> dict[str, list[str]]:
     """Get all supported models grouped by provider"""
     return {
         provider_name: provider_cls.get_supported_models()
