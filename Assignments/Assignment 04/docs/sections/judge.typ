@@ -1,3 +1,4 @@
+#import "@preview/lilaq:0.6.0" as lq
 #import "../utils.typ": answer, unjustified
 
 = LLM Judge Benchmarking (13 points)
@@ -20,6 +21,96 @@ In this problem, you will evaluate the performance of different LLMs using anoth
   - Plots of your results, and accordingly which model was better.
 
   *NOTE:* When you complete your evaluation, save the model responses and judge output to a file. You will be analyzing these outputs in the next two subproblems, and it will be easier if you do not have to regenerate the evaluation data.
+
+  #answer
+
+  The model Z is prompted with the following template to evaluate the responses from models E and F:
+
+  ```python
+      prompt = f"""
+  You are an impartial judge comparing two answers to the same question.
+
+  Judge the answers based on the following criteria:
+
+  - Correctness: Does the answer correctly address the question?
+  - Helpfulness: Does the answer provide useful information or insights?
+  - Relevance: Is the answer relevant to the question asked?
+  - Clarity: Is the answer clearly and coherently expressed?
+  - Completeness: Does the answer cover all necessary aspects of the question?
+  - Harmlessness: Is the answer free from harmful or inappropriate content?
+
+  Do not favor an answer for being longer if it is not better.
+
+  Question:
+  {query}
+
+  Answer from Model E:
+  {response_E}
+
+  Answer from Model F:
+  {response_F}
+
+  Explain your judgment.
+
+  Explain your judgment briefly. Then on the final line, output exactly
+  one of the following tags to indicate your preference:
+
+  #### Preference: <MODEL_E_BETTER>
+  #### Preference: <MODEL_F_BETTER>
+      """.strip()
+  ```
+
+  The preference is extracted from the judge’s response by regex matching the final line of the response to determine which model the judge preferred.
+
+  ```python
+  PREFERENCE_RE = re.compile(
+      r"#### Preference:\s*(<MODEL_E_BETTER>|<MODEL_F_BETTER>|<NO_PREFERENCE_FOUND>)"
+  )
+
+  match = PREFERENCE_RE.search(judge_output)
+  if match:
+      return match.group(1)
+
+  return NO_PREFERENCE_FOUND_TAG
+  ```
+
+  The final results were:
+
+  #figure(
+    lq.diagram(
+      width: 12cm,
+      height: 8cm,
+      xaxis: (
+        ticks: (
+          (0, [Model E]),
+          (1, [Model F]),
+          (2, [No preference]),
+        ),
+        subticks: none,
+      ),
+      yaxis: (
+        ticks: (0, 20, 40, 60, 80, 100),
+        label: [Percent Preferred],
+      ),
+      ylim: (0, 110),
+      lq.bar(
+        (0, 1, 2),
+        (96.7, 3.3, 0.0),
+        fill: (rgb("#C58DE9"), rgb("#FFB3CC"), rgb("#FF8863")),
+        width: 60%,
+      ),
+      lq.place(0, 100.7, [96.7%]),
+      lq.place(1, 7.3, [3.3%]),
+      lq.place(2, 4, [0.0%]),
+    ),
+    caption: [LLM-as-a-judge preference rates on the 30 Alpaca Eval examples.],
+  )
+
+  - Model E wins: `29/30`
+  - Model F wins: `1/30`
+  - No preference extracted: `0/30`
+
+  Thus, model Z judged *Model E* to be substantially better than *Model F* on this subset of Alpaca Eval.
 
 + (4 points) Now inspect 5 of the responses from models E and F to 5 of the Alpaca Eval questions. For each, decide which one you would rate as being a more useful response. Below include:
 

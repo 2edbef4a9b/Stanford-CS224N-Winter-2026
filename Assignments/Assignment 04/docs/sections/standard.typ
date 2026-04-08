@@ -76,7 +76,7 @@ In this problem, you will evaluate the properties of various different LLMs that
 
     #figure(
       lq.diagram(
-        width: 10cm,
+        width: 12cm,
         height: 8cm,
         xaxis: (
           ticks: (

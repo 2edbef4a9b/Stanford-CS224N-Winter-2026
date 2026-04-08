@@ -30,7 +30,7 @@ This assignment uses **Google Vertex AI (Gemini)** via your local Google Cloud c
 
 Create a local `.env` file (or export env vars in your shell) with:
 
-- `GCP_PROJECT_NAME`: your GCP project ID (e.g., `hellow-world-485923-x5`) (used to initialize the Vertex AI client)
+- `GCP_PROJECT_NAME`: your GCP project ID (e.g., `hello-world-485923-x5`) (used to initialize the Vertex AI client)
 - `STUDENT_EMAIL`: only needed for models **G/H/I** (used to deterministically seed the per-student password)
 
 For an example see `example_usage.py`.
