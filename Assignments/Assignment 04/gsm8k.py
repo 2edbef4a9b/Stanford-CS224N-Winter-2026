@@ -1,5 +1,6 @@
 import json
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
 
 from dotenv import load_dotenv
@@ -21,11 +22,13 @@ def standard_prompt_template(question: str) -> str:
         prompt for a model to answer input question.
     """
 
-    prompt = f"""Output a numerical answer to the following problem with two or fewer steps of reasoning. Output your numerical
-answer as the only line of your output in the format "#### <numerical_answer>."
+    prompt = f"""
+Output a numerical answer to the following problem with two or fewer
+steps of reasoning. Output your numericalanswer as the only line of
+your output in the format "#### <numerical_answer>."
 
 Problem: {question}
-""".strip()
+    """.strip()
 
     return prompt
 
@@ -81,11 +84,9 @@ def print_metrics(metrics: Metrics, total_examples: int) -> None:
     print("=" * 100)
 
 
-def load_gsm8k_examples(
-    path: str, num: int | None = None
-) -> list[dict[str, str | int]]:
-    """Load GSM8K examples from a jsonl file."""
-    gsm8k_examples = []
+def load_gsm8k_data(path: str, num: int | None = None) -> list[dict[str, str | int]]:
+    """Load GSM8K data from a jsonl file."""
+    dataset = []
     count = 0
     with open(path) as file:
         for line in file:
@@ -93,11 +94,57 @@ def load_gsm8k_examples(
             if not line:
                 continue
             example = json.loads(line)
-            gsm8k_examples.append(example)
+            dataset.append(example)
             count += 1
             if num is not None and count >= num:
                 break
-    return gsm8k_examples
+    return dataset
+
+
+def eval_model(
+    model_id: str,
+    prompt_template: Callable[[str], str] = standard_prompt_template,
+    num_examples: int | None = None,
+) -> None:
+    """
+    Benchmark a model on the GSM8K dataset and print out performance metrics.
+
+    Args:
+        model_id: the string identifier for the model to evaluate.
+        prompt_template: a function that takes a gsm8k question and
+            returns a prompt string for the model.
+        num_examples: If not None, limits the number of examples to
+            evaluate on.
+    """
+    metrics = Metrics()
+    gsm8k_examples = load_gsm8k_data("./data/gsm8k_first_100.jsonl", num=num_examples)
+    print(f"Evaluating Model {model_id} on GSM8K with {len(gsm8k_examples)} examples.")
+
+    for example in tqdm(gsm8k_examples):
+        prompt = prompt_template(str(example["question"]))
+        query = Query(
+            turns=[
+                {"user": prompt},
+            ]
+        )
+        response = query_model(model_id=model_id, query=query)
+        model_answer = standard_output_extractor(response.text)
+        correct_answer = str(example["numerical_answer"])
+        if model_answer == correct_answer:
+            metrics.correct_times += 1
+        elif model_answer == INVALID_ANS:
+            metrics.invalid_times += 1
+        metrics.total_cost += response.cost
+        metrics.total_input_tokens += response.input_tokens
+        metrics.total_output_tokens += response.output_tokens
+
+    print(f"Model {model_id} Evaluation Results:")
+    print_metrics(
+        metrics,
+        total_examples=(
+            num_examples if num_examples is not None else len(gsm8k_examples)
+        ),
+    )
 
 
 def eval_model_on_gsm8k() -> None:
@@ -111,52 +158,8 @@ def eval_model_on_gsm8k() -> None:
     Think about: What metric will you use to evaluate performance? How will you
     handle cases where the model's output cannot be parsed?
     """
-    metrics_a = Metrics()
-    metrics_b = Metrics()
-    gsm8k_examples = load_gsm8k_examples("data/gsm8k_first_100.jsonl")
-
-    print(f"Evaluating Model A on GSM8K with {len(gsm8k_examples)} examples.")
-    for example in tqdm(gsm8k_examples):
-        prompt = standard_prompt_template(str(example["question"]))
-        query = Query(
-            turns=[
-                {"user": prompt},
-            ]
-        )
-        response = query_model(model_id="A", query=query)
-        model_answer = standard_output_extractor(response.text)
-        correct_answer = str(example["numerical_answer"])
-        if model_answer == correct_answer:
-            metrics_a.correct_times += 1
-        elif model_answer == INVALID_ANS:
-            metrics_a.invalid_times += 1
-        metrics_a.total_cost += response.cost
-        metrics_a.total_input_tokens += response.input_tokens
-        metrics_a.total_output_tokens += response.output_tokens
-    print("Model A Evaluation Results:")
-    print_metrics(metrics_a, total_examples=len(gsm8k_examples))
-
-    print(f"Evaluating Model B on GSM8K with {len(gsm8k_examples)} examples.")
-    for example in tqdm(gsm8k_examples):
-        prompt = standard_prompt_template(str(example["question"]))
-        query = Query(
-            turns=[
-                {"user": prompt},
-            ]
-        )
-        response = query_model(model_id="B", query=query)
-        model_answer = standard_output_extractor(response.text)
-        correct_answer = str(example["numerical_answer"])
-        if model_answer == correct_answer:
-            metrics_b.correct_times += 1
-        elif model_answer == INVALID_ANS:
-            metrics_b.invalid_times += 1
-        metrics_b.total_cost += response.cost
-        metrics_b.total_input_tokens += response.input_tokens
-        metrics_b.total_output_tokens += response.output_tokens
-
-    print("Model B Evaluation Results:")
-    print_metrics(metrics_b, total_examples=len(gsm8k_examples))
+    eval_model(model_id="A", prompt_template=standard_prompt_template)
+    eval_model(model_id="B", prompt_template=standard_prompt_template)
 
 
 def superior_prompt_template(question: str) -> str:
@@ -174,18 +177,25 @@ def superior_prompt_template(question: str) -> str:
     NOTE: Your prompt must still produce output in the "#### <answer>" format
     so that standard_output_extractor() can parse the response.
     """
-    # TODO complete for question 2bii
+    prompt = f"""
+Solve the following math word problem.
 
-    pass
+Problem: {question}
+
+Your last line must be exactly:
+`#### <numerical_answer>`
+Your final answer must be a single integer number without any units,
+commas, or decimal points.
+    """.strip()
+
+    return prompt
 
 
 def eval_model_on_gsm8k_with_improved_prompt() -> None:
     """
     Evaluate model A using your superior_prompt_template.
     """
-    # TODO complete for question 2bii
-
-    pass
+    eval_model(model_id="A", prompt_template=superior_prompt_template)
 
 
 if __name__ == "__main__":
