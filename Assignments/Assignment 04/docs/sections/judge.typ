@@ -127,3 +127,21 @@ In this problem, you will evaluate the performance of different LLMs using anoth
   As we tested on 30 problems, each of which has a preferred and not preferred output according to the judge, each histogram will have 30 datapoints.
 
   Include the plot below. Comment on any trends you notice in the data. Now you have seen this, do you trust that the LLM-as-judge evaluation you ran is indeed reflecting which model users would prefer? Provide justification for the answer you give.
+
+  #answer
+
+  #figure(
+    image("../results/histogram_tokens.svg", width: 100%),
+    caption: [Distribution of preferred vs. not-preferred response lengths measured in output tokens.],
+  )
+
+  #figure(
+    image("../results/histogram_chars.svg", width: 100%),
+    caption: [Distribution of preferred vs. not-preferred response lengths measured in characters.],
+  )
+
+  Both plots show a clear right-shift for the preferred outputs: responses preferred by the judge are generally longer than responses not preferred by the judge, in both token count and character count. This is largely because model E's responses are usually longer than model F's responses, and model E was preferred on 29 out of 30 examples. The only exception is the single example in which model F was preferred.
+
+  This suggests a strong correlation between response length and judge preference. Part of this may reflect real quality differences, since more useful answers are often more complete and therefore longer. However, the strength of the pattern also suggests that length bias may be influencing the judge.
+
+  Overall, it is clear that the LLM-as-judge evaluation cannot be fully trusted as a proxy for user preference. The result that model E is better than model F is probably meaningful, but the histograms indicate that the judge may systematically reward longer responses, which could exaggerate the margin between the two models.
