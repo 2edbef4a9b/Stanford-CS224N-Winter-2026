@@ -21,14 +21,14 @@ from torch import nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from datasets import (
+from src.datasets import (
     ParaphraseDetectionDataset,
     ParaphraseDetectionTestDataset,
     load_paraphrase_data,
 )
-from evaluation import model_eval_paraphrase, model_test_paraphrase
-from models.gpt2 import GPT2Model
-from optimizer import AdamW
+from src.evaluation import model_eval_paraphrase, model_test_paraphrase
+from src.models.gpt2 import GPT2Model
+from src.optimizer import AdamW
 
 TQDM_DISABLE = False
 
@@ -161,7 +161,7 @@ def train(args):
             save_model(model, optimizer, args, args.filepath)
 
         print(
-            f"Epoch {epoch}: train loss :: {train_loss :.3f}, dev acc :: {dev_acc :.3f}"
+            f"Epoch {epoch}: train loss :: {train_loss:.3f}, dev acc :: {dev_acc:.3f}"
         )
 
 
@@ -199,7 +199,7 @@ def test(args):
     dev_para_acc, _, dev_para_y_pred, _, dev_para_sent_ids = model_eval_paraphrase(
         para_dev_dataloader, model, device
     )
-    print(f"dev paraphrase acc :: {dev_para_acc :.3f}")
+    print(f"dev paraphrase acc :: {dev_para_acc:.3f}")
     test_para_y_pred, test_para_sent_ids = model_test_paraphrase(
         para_test_dataloader, model, device
     )

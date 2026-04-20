@@ -1,7 +1,7 @@
 import torch.nn.functional as F
 from torch import nn
 
-from modules.attention import CausalSelfAttention
+from src.modules.attention import CausalSelfAttention
 
 
 class GPT2Layer(nn.Module):

@@ -208,7 +208,7 @@ def get_from_cache(
             # between the HEAD and the GET (unlikely, but hey).
             if 300 <= r.status_code <= 399:
                 url_to_download = r.headers["Location"]
-        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+        except requests.exceptions.ConnectionError, requests.exceptions.Timeout:
             # etag is already None
             pass
 
@@ -255,7 +255,6 @@ def get_from_cache(
     # Prevent parallel downloads of the same file with a lock.
     lock_path = cache_path + ".lock"
     with FileLock(lock_path):
-
         # If the download just completed while the lock was activated.
         if os.path.exists(cache_path) and not force_download:
             # Even if returning early like here, the lock will be released.

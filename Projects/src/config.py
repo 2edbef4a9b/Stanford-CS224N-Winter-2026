@@ -8,7 +8,7 @@ import json
 import os
 from typing import Any
 
-from utils import CONFIG_NAME, cached_path, hf_bucket_url, is_remote_url
+from src.utils import CONFIG_NAME, cached_path, hf_bucket_url, is_remote_url
 
 
 class PretrainedConfig:

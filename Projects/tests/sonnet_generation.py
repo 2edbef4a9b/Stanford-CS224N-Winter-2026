@@ -19,11 +19,11 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 from transformers import GPT2Tokenizer
 
-from datasets import (
+from src.datasets import (
     SonnetsDataset,
 )
-from models.gpt2 import GPT2Model
-from optimizer import AdamW
+from src.models.gpt2 import GPT2Model
+from src.optimizer import AdamW
 
 TQDM_DISABLE = False
 
@@ -195,7 +195,7 @@ def train(args):
             num_batches += 1
 
         train_loss = train_loss / num_batches
-        print(f"Epoch {epoch}: train loss :: {train_loss :.3f}.")
+        print(f"Epoch {epoch}: train loss :: {train_loss:.3f}.")
         print("Generating several output sonnets...")
         model.eval()
         for batch in held_out_sonnet_dataset:
@@ -214,7 +214,7 @@ def train(args):
 @torch.no_grad()
 def generate_submission_sonnets(args):
     device = torch.device("cuda") if args.use_gpu else torch.device("cpu")
-    saved = torch.load(f"{args.epochs-1}_{args.filepath}", weights_only=False)
+    saved = torch.load(f"{args.epochs - 1}_{args.filepath}", weights_only=False)
 
     model = SonnetGPT(saved["args"])
     model.load_state_dict(saved["model"])

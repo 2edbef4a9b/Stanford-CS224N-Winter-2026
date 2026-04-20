@@ -1,8 +1,8 @@
 import torch
 from transformers import GPT2Model as OpenAIGPT2Model
 
-from models.gpt2 import GPT2Model
-from utils import model_size_to_params
+from src.models.gpt2 import GPT2Model
+from src.utils import model_size_to_params
 
 
 def test_gpt2(model_size="gpt2"):

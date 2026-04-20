@@ -334,7 +334,7 @@ def train(args):
             save_model(model, optimizer, args, config, args.filepath)
 
         print(
-            f"Epoch {epoch}: train loss :: {train_loss :.3f}, train acc :: {train_acc :.3f}, dev acc :: {dev_acc :.3f}"
+            f"Epoch {epoch}: train loss :: {train_loss:.3f}, train acc :: {train_acc:.3f}, dev acc :: {dev_acc:.3f}"
         )
 
 
@@ -377,7 +377,7 @@ def test(args):
         print("DONE Test")
 
         with open(args.dev_out, "w+") as f:
-            print(f"dev acc :: {dev_acc :.3f}")
+            print(f"dev acc :: {dev_acc:.3f}")
             f.write("id \t Predicted_Sentiment \n")
             for p, s in zip(dev_sent_ids, dev_pred):
                 f.write(f"{p}, {s} \n")

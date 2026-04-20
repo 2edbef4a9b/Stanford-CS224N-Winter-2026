@@ -1,11 +1,10 @@
 from torch import dtype
 
 from config import PretrainedConfig
-from utils import *
+from src.utils import *
 
 
 class GPTPreTrainedModel(nn.Module):
-
     def __init__(self, config: PretrainedConfig, *inputs, **kwargs):
         super().__init__()
         self.config = config
