@@ -2,10 +2,10 @@ import torch
 from torch import nn
 from transformers import GPT2Model as OpenAIGPT2Model
 
-from config import GPT2Config
-from models.base_gpt import GPTPreTrainedModel
-from modules.gpt2_layer import GPT2Layer
-from utils import get_extended_attention_mask
+from src.config import GPT2Config
+from src.models.base_gpt import GPTPreTrainedModel
+from src.modules.gpt2_layer import GPT2Layer
+from src.utils import get_extended_attention_mask
 
 
 class GPT2Model(GPTPreTrainedModel):

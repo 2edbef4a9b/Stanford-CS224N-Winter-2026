@@ -17,8 +17,8 @@ from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 from transformers import GPT2Tokenizer
 
-from models.gpt2 import GPT2Model
-from optimizer import AdamW
+from src.models.gpt2 import GPT2Model
+from src.optimizer import AdamW
 
 TQDM_DISABLE = False
 

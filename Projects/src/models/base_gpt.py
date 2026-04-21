@@ -1,6 +1,6 @@
 from torch import dtype
 
-from config import PretrainedConfig
+from src.config import PretrainedConfig
 from src.utils import *
 
 
