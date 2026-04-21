@@ -28,22 +28,43 @@ class GPT2Layer(nn.Module):
     def add(self, input, output, dense_layer, dropout):
         """
         TODO: Implement this helper method for the forward function.
-          - This function is applied after the multi-head attention layer as well as after the feed forward layer.
+          - This function is applied after the multi-head attention layer as well as
+            after the feed forward layer.
           - GPT-2 layer applies dropout to the transformed output of each sub-layer,
             before it is added to the sub-layer input. WE DO NOT APPLY THE LAYER NORM
             IN THIS FUNCTION.
         """
-        ### YOUR CODE HERE
-        raise NotImplementedError
+        output = dense_layer(output)
+        output = dropout(output)
+        return input + output
 
     def forward(self, hidden_states, attention_mask):
         """
         TODO: Implement the forward pass. Some key points to consider:
-               - A multi-head attention layer (CausalSelfAttention) that computes self-attention based on masked inputs.
-               - Layer normalization applied *before* the attention layer and feed-forward layer.
-               - Apply dropout, residual connection, and layer normalization according to the plot in the assignment. (Use self.add)
-               - A feed-forward layer that applies transformations to further refine the hidden states.
+          - A multi-head attention layer (CausalSelfAttention) that computes self-attention based on masked inputs.
+          - Layer normalization applied *before* the attention layer and feed-forward layer.
+          - Apply dropout, residual connection, and layer normalization according to the plot in the assignment. (Use self.add)
+          - A feed-forward layer that applies transformations to further refine the hidden states.
         """
+        # Attention layer norm.
+        attention_input = self.attention_layer_norm(hidden_states)
 
-        ### YOUR CODE HERE
-        raise NotImplementedError
+        # Self attention.
+        attention_value = self.self_attention(attention_input, attention_mask)
+
+        # Residual connections.
+        interm_states = self.add(
+            hidden_states, attention_value, self.attention_dense, self.attention_dropout
+        )
+
+        # Feedforward layer norm.
+        mlp_input = self.out_layer_norm(interm_states)
+
+        # Feedforward.
+        mlp_states = self.interm_dense(mlp_input)
+        mlp_output = self.interm_af(mlp_states)
+
+        # Residual connections.
+        output = self.add(interm_states, mlp_output, self.out_dense, self.out_dropout)
+
+        return output

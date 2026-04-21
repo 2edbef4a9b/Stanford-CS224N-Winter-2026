@@ -1,3 +1,6 @@
+import math
+
+import torch
 from einops import rearrange
 from torch import nn
 
@@ -14,25 +17,34 @@ class CausalSelfAttention(nn.Module):
         self.query = nn.Linear(config.hidden_size, self.all_head_size)
         self.key = nn.Linear(config.hidden_size, self.all_head_size)
         self.value = nn.Linear(config.hidden_size, self.all_head_size)
+
         # This dropout is applied to normalized attention scores following the original
         # implementation of transformer. Although it is a bit unusual, we empirically
         # observe that it yields better performance.
         self.dropout = nn.Dropout(config.attention_probs_dropout_prob)
 
     def transform(self, x, linear_layer):
-        # The corresponding linear_layer of k, v, q are used to project the hidden_state (x).
+        # The corresponding linear_layer of k, v, q are used to project thehidden_state (x).
         proj = linear_layer(x)
-        # Next, we need to produce multiple heads for the proj. This is done by spliting the
-        # hidden state to self.num_attention_heads, each of size self.attention_head_size.
+
+        # Next, we need to produce multiple heads for the proj. This is done by
+        # splitting the hidden state to self.num_attention_heads, each of size
+        # self.attention_head_size.
         proj = rearrange(proj, "b t (h d) -> b t h d", h=self.num_attention_heads)
-        # By proper transpose, we have proj of size [bs, num_attention_heads, seq_len, attention_head_size].
+
+        # By proper transpose, we have proj of size
+        # [bs, num_attention_heads, seq_len, attention_head_size].
         proj = rearrange(proj, "b t h d -> b h t d")
         return proj
 
     def attention(self, key, query, value, attention_mask):
-
-        ### YOUR CODE HERE
-        raise NotImplementedError
+        attn_dimension = key.shape[-1]
+        attn_scores = query @ key.transpose(-2, -1) / math.sqrt(attn_dimension)
+        attn_scores = attn_scores.masked_fill(attention_mask == 0, float("-inf"))
+        attn_probs = torch.softmax(attn_scores, dim=-1)
+        attn_probs = self.dropout(attn_probs)
+        attn_value = attn_probs @ value
+        return rearrange(attn_value, "b h t d -> b t (h d)")
 
     def forward(self, hidden_states, attention_mask):
         """
@@ -40,8 +52,8 @@ class CausalSelfAttention(nn.Module):
         attention_mask: [bs, 1, 1, seq_len]
         output: [bs, seq_len, hidden_state]
         """
-        # First, we have to generate the key, value, query for each token for multi-head attention
-        # using self.transform (more details inside the function).
+        # First, we have to generate the key, value, query for each token for multi-head
+        # attention using self.transform (more details inside the function).
         # Size of *_layer is [bs, num_attention_heads, seq_len, attention_head_size].
         key_layer = self.transform(hidden_states, self.key)
         value_layer = self.transform(hidden_states, self.value)
