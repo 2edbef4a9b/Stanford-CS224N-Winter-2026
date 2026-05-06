@@ -38,13 +38,20 @@ class CausalSelfAttention(nn.Module):
         return proj
 
     def attention(self, key, query, value, attention_mask):
-        attn_dimension = key.shape[-1]
-        attn_scores = query @ key.transpose(-2, -1) / math.sqrt(attn_dimension)
-        attn_scores = attn_scores.masked_fill(attention_mask == 0, float("-inf"))
-        attn_probs = torch.softmax(attn_scores, dim=-1)
-        attn_probs = self.dropout(attn_probs)
-        attn_value = attn_probs @ value
-        return rearrange(attn_value, "b h t d -> b t (h d)")
+        attention_dimension = key.shape[-1]
+        sequence_length = key.shape[-2]
+        attention_scores = (
+            query @ key.transpose(-2, -1) / math.sqrt(attention_dimension)
+        )
+        attention_scores = attention_scores + attention_mask
+        causal_mask = torch.tril(torch.ones(sequence_length, sequence_length)).view(
+            1, 1, sequence_length, sequence_length
+        )
+        attention_scores = attention_scores.masked_fill(causal_mask == 0, float("-inf"))
+        attention_probs = torch.softmax(attention_scores, dim=-1)
+        attention_probs = self.dropout(attention_probs)
+        attention_value = attention_probs @ value
+        return rearrange(attention_value, "b h t d -> b t (h d)")
 
     def forward(self, hidden_states, attention_mask):
         """
