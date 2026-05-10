@@ -1,3 +1,4 @@
+import math
 from collections.abc import Callable, Iterable
 
 import torch
@@ -35,7 +36,7 @@ class AdamW(Optimizer):
         )
         super().__init__(params, defaults)
 
-    def step(self, closure: Callable = None):
+    def step(self, closure: Callable | None = None):
         loss = None
         if closure is not None:
             loss = closure()
@@ -70,7 +71,37 @@ class AdamW(Optimizer):
                 ###       4. Apply weight decay after the main gradient-based updates.
                 ###
                 ###       Refer to the default project handout for more details.
-                ### YOUR CODE HERE
-                raise NotImplementedError
+
+                # Initialize state if it doesn't exist.
+                if len(state) == 0:
+                    state["step"] = 0
+                    state["exp_avg"] = torch.zeros_like(p.data)
+                    state["exp_avg_sq"] = torch.zeros_like(p.data)
+
+                # Get current step and moments.
+                state["step"] += 1
+                exp_avg = state["exp_avg"]
+                exp_avg_sq = state["exp_avg_sq"]
+
+                # Update moments.
+                beta1, beta2 = group["betas"]
+                exp_avg.mul_(beta1).add_(grad, alpha=1 - beta1)
+                exp_avg_sq.mul_(beta2).add_(grad * grad, alpha=1 - beta2)
+
+                # Apply bias correction.
+                step = state["step"]
+                bias_correction1 = 1 - beta1**step
+                bias_correction2 = 1 - beta2**step
+                alpha_t = alpha * math.sqrt(bias_correction2) / bias_correction1
+
+                # Update parameters.
+                p.data.addcdiv_(
+                    exp_avg, exp_avg_sq.sqrt().add_(group["eps"]), value=-alpha_t
+                )
+
+                # Apply weight decay.
+                weight_decay = group["weight_decay"]
+                if weight_decay != 0:
+                    p.data.mul_(1 - alpha * weight_decay)
 
         return loss
